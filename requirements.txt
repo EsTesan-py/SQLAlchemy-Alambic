@@ -1,0 +1,17 @@
+# requirements.txt
+
+# Framework web
+fastapi
+uvicorn[standard]       # Servidor ASGI para FastAPI
+
+# Base de datos
+SQLAlchemy
+psycopg2-binary         # Driver PostgreSQL
+alembic                 # Migraciones
+
+# Validación y serialización
+pydantic
+pydantic-settings       # Lectura de variables de entorno
+
+# Utilidades
+python-multipart        # Para formularios en FastAPI

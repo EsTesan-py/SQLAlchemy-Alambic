@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:alpine
+    env_file:
+      - .env.db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - postgres-db:/var/lib/postgresql
+    networks:
+      - net
+
+  backend:
+    build: .
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    env_file:
+      - .env.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/code
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net
+
+  alembic:
+    build: .
+    entrypoint: alembic
+    env_file:
+      - .env.db
+    volumes:
+      - ./src:/code
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net
+
+  fixtures:
+    build: .
+    command: ["python", "fixtures/initial_data.py"]
+    env_file:
+      - .env.db
+    volumes:
+      - ./src:/code
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net
+
+networks:
+  net:
+
+volumes:
+  postgres-db:
